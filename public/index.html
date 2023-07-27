@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Login</title>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet" />
+    <!-- MDB -->
+    <script async defer type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid shadow-sm col-7 mt-lg-5">
+        <h1 class="text-center text-decoration-underline">Sign in with Google</h1>
+        <div class="my-3 text-center">
+            <button class="btn btn-sm btn-black my-2" onclick="signIn()">Sign in with Google</button>
+        </div>
+        <div class="my-4" id="err"></div>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrARfWv6LmZss1OcKD5PJhJ59qCBrvAWI",
+            authDomain: "new-pro-6e065.firebaseapp.com",
+            projectId: "new-pro-6e065",
+            storageBucket: "new-pro-6e065.appspot.com",
+            messagingSenderId: "699747438050",
+            appId: "1:699747438050:web:dfd3d2ef0cae3550bebdbb"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const signIn = () => {
+            // alert("hey")
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    const user = result.user;
+                    console.log(user);
+                    sendEmailVerification(auth.currentUser)
+                        .then(() => {
+                            console.log("Email sent");
+                        }).catch((error)=>{
+                            console.log("error");
+                        });
+                    if (result) {
+                        window.location.href = 'dashboard.html'
+                    } else {
+                        window.location.href = 'index.html'
+                    }
+                }).catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.log(errorCode);
+                    console.log(errorMessage);
+                    if (errorCode == "auth/unauthorized-domain") {
+                        err.innerHTML = `
+                            <div class='alert alert-danger text-center p-2'>Login not authorized as you are attempting to log in from an unauthorised domain. Please contact the app developer</div>
+                        `
+                    }
+                });
+        }
+
+        window.signIn = signIn
+    </script>
+</body>
+
+</html>
