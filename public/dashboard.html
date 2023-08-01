@@ -29,14 +29,33 @@
             <button class="w-100 btn btn-primary" onclick="submitTodo()">Submit</button>
         </div>
     </div>
-    <div class="container-fluid col-5 my-3 shadow border border-success">
+    <!-- <div class="container-fluid col-5 my-3 shadow border border-success">
         <div id="showValues"></div>
-    </div>
+    </div> -->
     
+    <div class="container-fluid">
+        <h1 class="text-center">Upload movies</h1>
+        <div class="my-3">
+            <input type="text" class="form-control" placeholder="Movie title" id="movTitle">
+        </div>
+        <div class="my-3">
+            <input type="text" class="form-control" placeholder="Movie genre" id="movGenre">
+        </div>
+        <div class="my-3">
+            <input type="file" class="form-control" placeholder="Upload your movie" id="movie">
+        </div>
+        <div id="showProgress"></div>
+        <div class="my-3">
+            <button onclick="submitMedia()" class="btn btn-dark">Submit</button>
+        </div>
+    </div>
+    <!-- <img src="https://firebasestorage.googleapis.com/v0/b/new-pro-6e065.appspot.com/o/dp1.png?alt=media&token=dee780e0-e924-4695-b668-aa5898803cf8" alt=""> -->
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+        import { getStorage, ref as stRef, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCrARfWv6LmZss1OcKD5PJhJ59qCBrvAWI",
@@ -51,6 +70,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
+        const storage = getStorage(app);
         let todoIndex = 0
         
         onAuthStateChanged(auth, (user) => {
@@ -173,6 +193,31 @@
                 // `
             }
         })
+
+
+        const submitMedia = () => {
+            let movieObj = {
+                title : movTitle.value,
+                genre : movGenre.value,
+                movie : movie.files,
+            }
+            console.log(movieObj.movie[0]);
+            let theMedia = movieObj.movie[0]
+            let mediaName = movieObj.movie[0].name
+
+            const mediaRef = stRef(storage, `media/${mediaName}`)
+            const uploadTask = uploadBytesResumable(mediaRef, theMedia)
+            uploadTask.on('state_changed', (snapshot)=>{
+                // console.log(snapshot);
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                // console.log(progress);
+                let convertedProgress = Math.round(progress)
+                showProgress.innerHTML = `
+                    <small>The upload is ${convertedProgress} % complete</small>
+                `
+            })
+        }
+        window.submitMedia = submitMedia
     </script>
 </body>
 
